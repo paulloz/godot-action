@@ -125,10 +125,12 @@ const utils = __importStar(__nccwpck_require__(918));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            if (process.platform !== 'linux') {
+                throw Error('This action is only available on Linux runners.');
+            }
             const version = core.getInput('version');
             if (!utils.validateVersion(version)) {
-                // TODO: Write an error message
-                throw Error();
+                throw Error(`${version} is not a valid version.`);
             }
             yield godot.install(version, core.getBooleanInput('mono'));
             if (yield godot.test(version)) {

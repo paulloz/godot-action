@@ -4,10 +4,13 @@ import * as utils from './utils'
 
 async function run(): Promise<void> {
     try {
+        if (process.platform !== 'linux') {
+            throw Error('This action is only available on Linux runners.')
+        }
+
         const version: string = core.getInput('version')
         if (!utils.validateVersion(version)) {
-            // TODO: Write an error message
-            throw Error()
+            throw Error(`${version} is not a valid version.`)
         }
 
         await godot.install(version, core.getBooleanInput('mono'))
