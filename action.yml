@@ -1,5 +1,5 @@
 name: 'Godot Action'
-description: ''
+description: 'A simple GitHub action to install and run Godot engine.'
 author: 'Paul Joannon'
 inputs:
   version:
@@ -8,5 +8,5 @@ inputs:
     required: false
     default: false
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
