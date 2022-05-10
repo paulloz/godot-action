@@ -35,52 +35,117 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.test = exports.install = exports.executable = void 0;
+exports.Godot = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 const io = __importStar(__nccwpck_require__(436));
 const toolCache = __importStar(__nccwpck_require__(784));
-const utils = __importStar(__nccwpck_require__(918));
-exports.executable = 'godot';
-function install(version, mono) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const versionID = `${version}${mono ? '-mono' : ''}`;
-        // First, try to pull from the cache
-        let godotPath = toolCache.find(exports.executable, versionID, process.platform);
-        if (godotPath) {
-            // If that was successful, there's not much more to do
-            core.info(`Godot ${versionID} was found in cache. Pulling it now...`);
-        }
-        else {
-            // Else, download the zip from the repository
-            core.info(`Downloading Godot ${versionID}...`);
-            const downloadedPath = yield toolCache.downloadTool(utils.godotDownloadURL(version, mono));
-            // Extract it
+class Godot {
+    constructor(version, mono) {
+        this.version = version;
+        this.mono = mono;
+        this.path = '';
+    }
+    get versionID() {
+        return `${this.version}${this.mono ? '.mono' : ''}`;
+    }
+    get engineDownloadURL() {
+        if (this.mono)
+            return `${Godot.repoURL}${this.version}/mono/${this.engineDownloadedFileName.replace(/\.64$/, '_64')}.zip`;
+        return `${Godot.repoURL}${this.version}/${this.engineDownloadedFileName}.zip`;
+    }
+    get engineDownloadedFileName() {
+        return `Godot_v${this.version}-stable${this.mono ? '_mono' : ''}_linux_headless.64`;
+    }
+    get templatesDownloadURL() {
+        if (this.mono)
+            return `${Godot.repoURL}${this.version}/mono/Godot_v${this.version}-stable_mono_export_templates.tpz`;
+        return `${Godot.repoURL}${this.version}/Godot_v${this.version}-stable_export_templates.tpz`;
+    }
+    get templatesPath() {
+        return `/home/runner/.local/share/godot/templates/${this.versionID}.stable`;
+    }
+    fetch() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // First, try to pull from the cache
+            this.path = toolCache.find(Godot.executable, this.versionID, process.platform);
+            if (this.path.length > 0) {
+                // If that was successful, there's not much more to do
+                core.info(`Godot ${this.versionID} was found in cache. Pulling it now...`);
+            }
+            else {
+                // Else, download the zip from the repository
+                core.info(`Downloading Godot ${this.versionID}...`);
+                const downloadedPath = yield toolCache.downloadTool(this.engineDownloadURL);
+                // Extract it
+                core.info(`Extracting package...`);
+                const extractedPath = yield toolCache.extractZip(downloadedPath);
+                const toolPath = !this.mono
+                    ? extractedPath
+                    : `${extractedPath}/${this.engineDownloadedFileName.replace(/\.64$/, '_64')}`;
+                // Easier if the executables for all versions are named the exact same way
+                yield io.mv(`${toolPath}/${this.engineDownloadedFileName}`, `${toolPath}/${Godot.executable}`);
+                // Push our newly downloaded version in the cache
+                core.info(`Pushing Godot ${this.versionID} into cache...`);
+                this.path = yield toolCache.cacheDir(toolPath, Godot.executable, this.versionID, process.platform);
+                // And tidy up
+                yield io.rmRF(downloadedPath);
+                yield io.rmRF(extractedPath);
+            }
+        });
+    }
+    install() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.fetch();
+            if (this.path.length > 0) {
+                core.addPath(this.path);
+            }
+        });
+    }
+    fetchTemplates() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // First, try to pull from the cache
+            let path = toolCache.find(Godot.templates, this.versionID, process.platform);
+            if (path.length > 0) {
+                core.info(`Export templates for Godot ${this.versionID} were found in cache. Pulling them now...`);
+            }
+            else {
+                // If we find nothing, first download the .tpz file from the repository
+                core.info(`Downloading export templates for Godot ${this.versionID}...`);
+                const downloadedPath = yield toolCache.downloadTool(this.templatesDownloadURL);
+                // Push our newly downloaded .tpz file in the cache
+                core.info(`Pushing export templates for Godot ${this.versionID} into cache...`);
+                path = yield toolCache.cacheFile(downloadedPath, Godot.templates, Godot.templates, this.versionID, process.platform);
+            }
+            // Extract the content of the .tpz file
             core.info(`Extracting package...`);
-            const extractedPath = yield toolCache.extractZip(downloadedPath);
-            const containingPath = utils.godotContainingPath(extractedPath, version, mono);
-            // Easier if the executables for all versions are named the exact same way
-            yield io.mv(`${containingPath}/${utils.godotBinName(version, mono)}`, `${containingPath}/${exports.executable}`);
-            // Push our newly downloaded version in the cache
-            core.info(`Pushing Godot ${versionID} into cache...`);
-            godotPath = yield toolCache.cacheDir(containingPath, exports.executable, versionID, process.platform);
+            const extractedPath = yield toolCache.extractZip(`${path}/${Godot.templates}`);
+            // Move everything to the right place
+            yield io.rmRF(this.templatesPath);
+            yield io.mv(`${extractedPath}/templates/`, this.templatesPath);
             // And tidy up
-            yield io.rmRF(downloadedPath);
             yield io.rmRF(extractedPath);
-        }
-        // Finally, update the PATH
-        core.addPath(godotPath);
-    });
+        });
+    }
+    installTemplates() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.fetchTemplates();
+        });
+    }
+    test() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Need to run with ignoreReturnCode, since Godot always returns weird codes (even on success)
+            const output = yield exec.getExecOutput(Godot.executable, ['--version', '--quit'], {
+                ignoreReturnCode: true,
+            });
+            return output.stdout.startsWith(this.version);
+        });
+    }
 }
-exports.install = install;
-function test(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Need to run with ignoreReturnCode, since Godot always returns weird codes (even on success)
-        const output = yield exec.getExecOutput(exports.executable, ['--version', '--quit'], { ignoreReturnCode: true });
-        return output.stdout.startsWith(version);
-    });
-}
-exports.test = test;
+exports.Godot = Godot;
+Godot.executable = 'godot';
+Godot.templates = `${Godot.executable}-tpz`;
+Godot.repoURL = 'https://downloads.tuxfamily.org/godotengine/';
 
 
 /***/ }),
@@ -120,8 +185,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const godot = __importStar(__nccwpck_require__(23));
 const utils = __importStar(__nccwpck_require__(918));
+const godot_1 = __nccwpck_require__(23);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -132,9 +197,16 @@ function run() {
             if (!utils.validateVersion(version)) {
                 throw Error(`${version} is not a valid version.`);
             }
-            yield godot.install(version, core.getBooleanInput('mono'));
-            if (yield godot.test(version)) {
+            const godot = new godot_1.Godot(version, core.getBooleanInput('mono'));
+            yield godot.install();
+            if (yield godot.test()) {
                 core.info(`Successfully installed Godot!`);
+            }
+            else {
+                throw Error();
+            }
+            if (core.getBooleanInput('export-templates')) {
+                yield godot.installTemplates();
             }
         }
         catch (error) {
@@ -154,31 +226,7 @@ run();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.validateVersion = exports.godotContainingPath = exports.godotBinName = exports.godotZipName = exports.godotDownloadURL = void 0;
-function godotDownloadURL(version, mono) {
-    return `https://downloads.tuxfamily.org/godotengine/${version}/${mono ? 'mono/' : ''}${godotZipName(version, mono)}.zip`;
-}
-exports.godotDownloadURL = godotDownloadURL;
-function godotZipName(version, mono) {
-    if (mono) {
-        const binName = godotBinName(version, mono);
-        const index = binName.lastIndexOf('.');
-        return `${binName.substring(0, index)}_${binName.substring(index + 1)}`;
-    }
-    return godotBinName(version, mono);
-}
-exports.godotZipName = godotZipName;
-function godotBinName(version, mono) {
-    return `Godot_v${version}-stable${mono ? '_mono' : ''}_linux_headless.64`;
-}
-exports.godotBinName = godotBinName;
-function godotContainingPath(basePath, version, mono) {
-    if (mono) {
-        return `${basePath}/${godotZipName(version, mono).replace('.zip', '')}`;
-    }
-    return basePath;
-}
-exports.godotContainingPath = godotContainingPath;
+exports.validateVersion = void 0;
 // prettier-ignore
 const validVersions = [
     '3.0', '3.0.1', '3.0.2', '3.0.3', '3.0.4', '3.0.5', '3.0.6',
