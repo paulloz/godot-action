@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
-import * as godot from './godot'
 import * as utils from './utils'
+
+import { Godot } from './godot'
 
 async function run(): Promise<void> {
     try {
@@ -13,10 +14,17 @@ async function run(): Promise<void> {
             throw Error(`${version} is not a valid version.`)
         }
 
-        await godot.install(version, core.getBooleanInput('mono'))
+        const godot = new Godot(version, core.getBooleanInput('mono'))
+        await godot.install()
 
-        if (await godot.test(version)) {
+        if (await godot.test()) {
             core.info(`Successfully installed Godot!`)
+        } else {
+            throw Error()
+        }
+
+        if (core.getBooleanInput('export-templates')) {
+            await godot.installTemplates()
         }
     } catch (error) {
         if (error instanceof Error) core.setFailed(error.message)

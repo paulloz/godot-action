@@ -7,6 +7,9 @@ inputs:
   mono:
     required: false
     default: false
+  export-templates:
+    required: false
+    default: true
 runs:
   using: 'node16'
   main: 'dist/index.js'

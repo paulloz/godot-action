@@ -14,16 +14,21 @@ steps:
       version: 3.4.4
   - run: |
       godot --version
+      godot --export <platform> <path-to-export-to>
 ```
 
 ## Options
 
-### version **required**
+### version (required)
 
 Which version of the engine you want to install.
 
-### mono
+### mono (default: `false`)
 
 If you want the standard or Mono version of the engine.
+
+### export-templates (default: `true`) 
+
+If you want the export templates installed or not.
 
 Default value: `false`
