@@ -30,5 +30,3 @@ If you want the standard or Mono version of the engine.
 ### export-templates (default: `true`) 
 
 If you want the export templates installed or not.
-
-Default value: `false`
