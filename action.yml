@@ -1,6 +1,9 @@
 name: 'Godot Action'
 description: 'A simple GitHub action to install and run Godot engine.'
 author: 'Paul Joannon'
+branding:
+  icon: 'save'
+  color: 'purple'
 inputs:
   version:
     required: true
