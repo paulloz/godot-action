@@ -14,7 +14,7 @@ export class Godot {
     private path: string
 
     public get versionID(): string {
-        return `${this.version}${this.mono ? '.mono' : ''}`
+        return `${this.version}${this.mono ? '-mono' : ''}`
     }
 
     private get engineDownloadURL(): string {
@@ -32,7 +32,7 @@ export class Godot {
     }
 
     private get templatesPath(): string {
-        return `/home/runner/.local/share/godot/templates/${this.versionID}.stable`
+        return `/home/runner/.local/share/godot/templates/${this.version}.stable${!this.mono ? '' : '.mono'}`
     }
 
     public constructor(version: string, mono: boolean) {

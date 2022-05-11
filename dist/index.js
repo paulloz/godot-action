@@ -47,7 +47,7 @@ class Godot {
         this.path = '';
     }
     get versionID() {
-        return `${this.version}${this.mono ? '.mono' : ''}`;
+        return `${this.version}${this.mono ? '-mono' : ''}`;
     }
     get engineDownloadURL() {
         if (this.mono)
@@ -63,7 +63,7 @@ class Godot {
         return `${Godot.repoURL}${this.version}/Godot_v${this.version}-stable_export_templates.tpz`;
     }
     get templatesPath() {
-        return `/home/runner/.local/share/godot/templates/${this.versionID}.stable`;
+        return `/home/runner/.local/share/godot/templates/${this.version}.stable${!this.mono ? '' : '.mono'}`;
     }
     fetch() {
         return __awaiter(this, void 0, void 0, function* () {
