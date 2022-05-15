@@ -4,6 +4,9 @@ A simple GitHub action to install and run Godot engine.
 
 This action is only available on Linux runners.
 
+If you use and like this project, please consider buying me a coffee:  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E53SKZF)
+
 ## Usage
 
 ```yml
