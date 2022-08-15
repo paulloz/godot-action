@@ -14,7 +14,7 @@ steps:
   - uses: actions/checkout@v3
   - uses: paulloz/godot-action@v1
     with:
-      version: 3.4.4
+      version: 3.5
   - run: |
       godot --version
       godot --export <platform> <path-to-export-to>
