@@ -45,11 +45,6 @@ const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const toolCache = __importStar(__nccwpck_require__(7784));
 class Godot {
-    constructor(version, mono) {
-        this.version = version;
-        this.mono = mono;
-        this.path = '';
-    }
     get versionID() {
         return `${this.version}${this.mono ? '-mono' : ''}`;
     }
@@ -68,6 +63,11 @@ class Godot {
     }
     get templatesPath() {
         return `/home/runner/.local/share/godot/templates/${this.version}.stable${!this.mono ? '' : '.mono'}`;
+    }
+    constructor(version, mono) {
+        this.version = version;
+        this.mono = mono;
+        this.path = '';
     }
     fetch() {
         return __awaiter(this, void 0, void 0, function* () {
