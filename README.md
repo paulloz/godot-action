@@ -12,7 +12,7 @@ If you use and like this project, please consider buying me a coffee:
 ```yml
 steps:
   - uses: actions/checkout@v3
-  - uses: paulloz/godot-action@v1.3
+  - uses: paulloz/godot-action@v1.2.1
     with:
       version: 4.0
   - run: |
