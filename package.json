@@ -1,13 +1,13 @@
 {
   "name": "godot-action",
-  "version": "1.2",
+  "version": "1.2.1",
   "private": true,
   "description": "A simple GitHub action to install and run Godot engine.",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write '**/*.ts'",
-    "format-check": "prettier --check '**/*.ts'",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "all": "npm run build && npm run format && npm run lint && npm run package"
