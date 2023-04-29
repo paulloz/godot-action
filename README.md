@@ -12,9 +12,9 @@ If you use and like this project, please consider buying me a coffee:
 ```yml
 steps:
   - uses: actions/checkout@v3
-  - uses: paulloz/godot-action@v1.2
+  - uses: paulloz/godot-action@v1.3
     with:
-      version: 3.5
+      version: 4.0
   - run: |
       godot --version
       godot --export <platform> <path-to-export-to>
