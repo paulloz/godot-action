@@ -146,10 +146,10 @@ class Godot {
         });
     }
 }
+exports.Godot = Godot;
 Godot.executable = 'godot';
 Godot.templates = `${Godot.executable}-tpz`;
 Godot.repoURL = 'https://downloads.tuxfamily.org/godotengine/';
-exports.Godot = Godot;
 
 
 /***/ }),
